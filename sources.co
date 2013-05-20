@@ -51,7 +51,7 @@ export LIMN_DATA   = "#LIMN_VARDIR/data"
 export MODULES =
     browserify: <[
             underscore underscore.nested underscore.kv
-            operator seq timeseries emitters events
+            operator timeseries emitters events
         ]>
     
     production:
