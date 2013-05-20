@@ -1,6 +1,5 @@
 _       = require 'underscore'
 ko      = require 'knockout'
-Seq     = require 'seq'
 
 { compareIds, OrderedSet, formatters,
 } = require '../util'
