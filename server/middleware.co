@@ -225,7 +225,7 @@ application = limn.application =
             
             # transparently recompile modules that have changed
             @use '/js/limn', compiler do
-                enabled : 'coco'
+                enabled : <[ coco jade-browser jade ]>
                 src     : SRC
                 dest    : "#varDir/js/limn"
                 log_level : LOG_LEVEL

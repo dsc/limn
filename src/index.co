@@ -1,6 +1,3 @@
-page = require 'page'
-
-
 limn = exports
 limn.require = require
 
@@ -9,8 +6,10 @@ limn.{ _, op, emitters, guidFor, compareIds,
 } = limn.util = require './util'
 
 
-# This must come after requiring util in case it wasn't a module
-ko = require 'knockout'
+# XXX: These must come after requiring util so it can shim the modules
+ko   = require 'knockout'
+page = require 'page'
+
 
 # Set up domReady observable
 limn.domReady = ko.observable false
@@ -30,35 +29,12 @@ limn.mount = (path='') ->
     mnt  .= slice(0, -1) if '/' == mnt[mnt.length-1]
     "#mnt/#path"
 
+limn.message   = require './message'
 
 limn.base       = require './base'
 limn.data       = require './data'
 limn.graph      = require './graph'
 limn.dashboard  = require './dashboard'
-
-
-/**
- * Basic info and error messages that can be used anywhere via the limn object
- */
-limn.showMessages = -> $('#messages').show()
-limn.hideMessages = -> $('#messages').hide()
-limn.hideError = -> $('#messages .error').hide()
-limn.hideInfo = -> $('#messages .info').hide()
-
-$('#messages button.close').on('click', -> $('#messages').hide())
-limn.hideMessages()
-
-limn.error = (message) ->
-    limn.showMessages()
-    limn.hideInfo()
-    $('#messages .error .message').text message
-    $('#messages .error').show 'slow'
-
-limn.info = (message) ->
-    limn.showMessages()
-    limn.hideError()
-    $('#messages .info .message').text message
-    $('#messages .info').show 'slow'
 
 
 /**
@@ -91,7 +67,7 @@ class limn.LimnApp
     (config) ->
         @currentView = ko.observable()
         
-        # Because, really, everyone hates typing when debugging
+        # automatically update `limn.view`, `limn.model` when view changes
         ko.computed ~>
             obs   = @currentView
             view  = limn.view  = obs()
@@ -99,7 +75,7 @@ class limn.LimnApp
             [prev, obs.prev] = [obs.prev, view]
             limn.trigger 'app-view-changed', view, prev, limn.app if view
         
-        # Prevent page.js from intercepting clicks on links to datafiles
+        # XXX: Prevent page.js from intercepting clicks on links to datafiles
         window.addEventListener do
             'click'
             (evt) ->
@@ -108,6 +84,7 @@ class limn.LimnApp
                 false
             true # capture phase
         
+        # TODO: this binds everything in the whole app, preventing individual graph rendering
         @currentView new limn.base.LoadingView()
         ko.applyBindings this
         
@@ -120,7 +97,7 @@ class limn.LimnApp
                 id   = 'reportcard'
             
             # if the id is an action, route accordingly
-            if _(['create','list']).contains id
+            if _ <[ create list ]> .contains id
                 action = id
                 id = null
             
