@@ -182,13 +182,13 @@ class exports.GraphView extends View
         graph = ko.utils.unwrapObservable @model
         graph.save()
             .done ->
-                limn.info 'Saved Successfully'
+                limn.message.info 'Saved Successfully'
             .fail (data, message, response) ->
                 switch response.status
                     case 403
-                        limn.error "Not Saved.  #message"
+                        limn.message.error "Not Saved.  #message"
                     default
-                        limn.error 'Not Saved.  There was a problem'
+                        limn.message.error 'Not Saved.  There was a problem'
     
     
     /* * * *  UI Feedback  * * * {{{ */

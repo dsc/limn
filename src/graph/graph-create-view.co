@@ -142,23 +142,23 @@ class exports.GraphCreateView extends View
         @blankGraph().save()
             .done ~>
                 @blankGraph().id @blankGraph().slug()
-                limn.info "Saved Successfully with id #{@blankGraph().id()}"
+                limn.message.info "Saved Successfully with id #{@blankGraph().id()}"
                 @recentGraphs.push @blankGraph()
                 @cleanUpPreview()
             .fail (data, message, response) ->
                 switch response.status
                     case 403
-                        limn.error "Not Saved.  Please sign in (top right of this page)"
+                        limn.message.error "Not Saved.  Please sign in (top right of this page)"
                     case 409
-                        limn.error "Not Saved.  Graph '#{@slug()}' already exists"
+                        limn.message.error "Not Saved.  Graph '#{@slug()}' already exists"
                     default
-                        limn.error 'Not Saved.  There was a problem'
+                        limn.message.error 'Not Saved.  There was a problem'
     
     
     deleteGraph: (graph, event) ->
         graph.destroy()
             .done ->
-                limn.info "Deleted Graph #{graph.id()}"
+                limn.message.info "Deleted Graph #{graph.id()}"
                 ko.contextFor(event.target).$parents[1].recentGraphs.remove graph
             .fail ->
-                limn.error 'Not Deleted.  There was a problem'
+                limn.message.error 'Not Deleted.  There was a problem'

@@ -1,0 +1,29 @@
+
+/**
+ * @namespace Basic info and error messages that can be used anywhere via the limn object
+ */
+message = module.exports = do
+    
+    showMessages : -> $('#messages').show()
+    hideMessages : -> $('#messages').hide()
+    hideError    : -> $('#messages .error').hide()
+    hideInfo     : -> $('#messages .info').hide()
+    
+    error : (message) ->
+        message.showMessages()
+        message.hideInfo()
+        $('#messages .error .message').text message
+        $('#messages .error').show 'slow'
+    
+    info : (message) ->
+        message.showMessages()
+        message.hideError()
+        $('#messages .info .message').text message
+        $('#messages .info').show 'slow'
+
+
+# TODO: create #messages if not exists
+
+$('#messages button.close').on 'click', -> $('#messages').hide()
+message.hideMessages()
+
