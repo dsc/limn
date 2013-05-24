@@ -110,7 +110,6 @@ task \build 'Build coco sources' ->
             else
                 console.log "  Writing CommonJS file:\t #infile \t-->\t #outfile"
                 write outfile, wrapInRequireDefine "#module.js", infile
-            
             @ok()
     
     Seq()
@@ -131,7 +130,7 @@ task \build 'Build coco sources' ->
             console.log "  Compiling Coco to JS and .MOD.JS:\t #infile \t-->\t #outfile"
             mkdirp dirname outfile
             write outfile, Coco.compile read(infile), {+bare, filename:infile}
-            write modfile, "require.define('/node_modules/#module', function(require, module, exports, __dirname, __filename, undefined){\n\n" + read(outfile) + "\n\n});\n"
+            write modfile, wrapInRequireDefine module, outfile
             @ok()
         
         .set glob "css/*.styl", {+sync}
