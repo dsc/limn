@@ -19,7 +19,7 @@ Trait = require './node/graph-node-trait'
 
 
 
-class exports.GraphView extends View
+export class GraphView extends View
     template: 'graph'
     
     defaults: ->
@@ -198,4 +198,13 @@ class exports.GraphView extends View
     
     
     # }}}
+
+
+
+export class GraphChartOnlyView extends GraphView
+    template: 'graph-chart'
     
+    (model, action) ->
+        super ...
+    
+

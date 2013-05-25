@@ -8,6 +8,7 @@ ko = require 'knockout'
 { GraphView,
 } = require '../graph/graph-view'
 
+
 class exports.DashboardTabView extends View
     template: 'dashboard-tab'
     
@@ -20,7 +21,7 @@ class exports.DashboardTabView extends View
     
     defaults: ->
         model       : null
-        isDisposed : false
+        isDisposed  : false
         graphs      : []
     
     attributeTypes: ->
