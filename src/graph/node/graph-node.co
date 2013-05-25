@@ -189,7 +189,8 @@ class exports.GraphNode extends AttributesBase implements formatters
                     @isRendered true
                     @trigger 'render', this
             
-            @once 'watch-build', @renderWrap
+            # Trigger first render (after build) asynchronously
+            @once 'watch-build', ~> _.defer @renderWrap
         
         # console.log "new #this"
     
