@@ -25,15 +25,16 @@ html(lang="en", dir="ltr")
                 .pull-right
                     include login
             
-            section#messages.collapse
-                .error.hide
-                    span.badge.badge-important !
-                    span.message
-                    button.close.pull-right &times;
-                .info.hide
-                    span.badge.badge-success OK
-                    span.message
-                    button.close.pull-right &times;
+            block messages
+                section#messages.collapse
+                    .error.hide
+                        span.badge.badge-important !
+                        span.message
+                        button.close.pull-right &times;
+                    .info.hide
+                        span.badge.badge-success OK
+                        span.message
+                        button.close.pull-right &times;
             
             section#content: .inner
                 block content
@@ -53,12 +54,10 @@ html(lang="en", dir="ltr")
             
             .scripts
                 block scripts
-                    - var limn_config = { 'mount':mount, 'rev':version, 'env':NODE_ENV };
+                    - var limn_config = { 'mode':'hosted', 'server':{ 'base':mount } };
                     script
-                        var VERSION     = !{ JSON.stringify(version)  };
-                        var ENV         = !{ JSON.stringify(NODE_ENV) };
-                        var IS_DEV      = ENV === 'development';
-                        var IS_PROD     = ENV === 'production';
+                        var LIMN_VERSION = !{ JSON.stringify(version)  };
+                        var LIMN_ENV     = !{ JSON.stringify(NODE_ENV) };
                         var limn_config = !{ JSON.stringify(limn_config) };
                     
                     block lib-scripts
@@ -79,6 +78,8 @@ html(lang="en", dir="ltr")
                             var limn = require('limn');
                             var _    = require('underscore');
                     block main-scripts
+                        script
+                            require('limn/app');
             
             block addenda
                 .rilke: blockquote
