@@ -1,0 +1,89 @@
+{ _, root,
+} = require './util'
+
+
+/**
+ * @class Limn configuration. On initialization, two globals are searched:
+ *  - `limn_config`, an object that can hold any configuration.
+ *  - `limn_render`, an array of "<graph_id> <selector>", instructing limn to render that graph into the first element matching the given selector.
+ * 
+ */
+export class Config
+    
+    /**
+     * Configuration defaults.
+     */
+    DEFAULT_CONFIG:
+        mode: 'lib'                 # := null = 'lib' | 'hosted' -- Operation mode; 'lib' will wait to perform most actions; 'hosted' presumes to be served by the Limn server, and applies routes, prefetches assets.
+        DOMReady: false             # Set to true if you're loading limn.js async after pageload
+        
+        server:
+            base: '/'               # := null = '/' | string -- Sever URL prefix, used to load resources and data files.
+            remoteMode: 'error'     # := null = error | proxy | cors -- How to handle remote resources: proxy uses the Limn Server proxy module; CORS attempts to use ajax; otherwise, error.
+        
+        data:
+            lazy: false             # Implies `lazyRender`. Renderables wait until render to load required resources (self, datasources, datafiles, etc).
+        
+        render:
+            lazy: true              # Renderables wait until visible and scrolled into view before rendering.
+            defaultContainer: null  # Selector picking out an element to append graphs to when no parent element is specified.
+        
+    
+    
+    _userConfig: null # Original config given by the user.
+    _fullConfig: null # Reference to the materialized config object.
+    
+    /**
+     * In non-hosted mode, queue of graphs to render once the DOM is ready.
+     * @type Array<{ graph_id, sel }>
+     */
+    renderQueue: null
+    
+    
+    
+    (conf={}) ->
+        @renderQueue = []
+        @_userConfig = {}
+        @_fullConfig = _.merge {}, @DEFAULT_CONFIG
+        @update conf
+    
+    
+    canonicalize: (conf) ->
+        conf.render.lazyRender = true if conf.render.lazyLoad
+        conf
+    
+    update: (conf={}) ->
+        @_userConfig = _.merge {}, @_userConfig, conf
+        @_fullConfig = @canonicalize _.merge {}, @_fullConfig, @_userConfig
+        for k in @DEFAULT_CONFIG
+            @[k] = @_fullConfig[k]
+        this
+    
+    processQueueConfig: (queue) ->
+        queue ?= root.limn_render or []
+        for obj of queue
+            if typeof obj is 'string'
+                obj = obj.split(/ +/)
+            if _.isArray obj
+                obj = { graph_id:obj.pop(), sel:obj.join(' ') }
+            unless obj?.graph_id
+                console.error "Limn: A graph_id must be specified when a render is queued!", obj
+                continue
+            @renderQueue.push obj
+        this
+    
+    
+    /**
+     * Prefix a path with the server mount point.
+     */
+    mount: (path='') ->
+        mnt   = @server.base or '/'
+        path .= slice(1)     if '/' == path[0]
+        mnt  .= slice(0, -1) if '/' == mnt[mnt.length-1]
+        "#mnt/#path"
+    
+    
+    toJSON: ->
+        _.merge {}, @_fullConfig
+    
+

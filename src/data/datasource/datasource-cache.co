@@ -20,7 +20,7 @@ DataSourceCache = exports.DataSourceCache = new ModelCache DataSource, {-ready, 
 DataSource.fetchAll = exports.fetchAll = ->
     limn = require '../../index'
     
-    allDataURL = limn.mount('datasources/all')
+    allDataURL = limn.config.mount('datasources/all')
     $.getJSON allDataURL, (models) ->
         _.each models, (data) ->
             unless DataSourceCache.get data.id
