@@ -21,7 +21,8 @@ class exports.View extends AttributesBase
     defaults: ->
         model       : null
         action      : null
-        isDisposed : false
+        isDisposed  : false
+        isReady     : false
     
     /**
      * DOM Element for this view. jQuery objects and d3 Selections
@@ -105,7 +106,7 @@ class exports.View extends AttributesBase
     
     
     /**
-     * Called by Knockout once the Graph template has finished rendering.
+     * Called by Knockout once the template has finished rendering.
      */
     afterRender: (element) ->
         # console.log "#this.afterRender()"
@@ -114,7 +115,7 @@ class exports.View extends AttributesBase
     
     
     /**
-     * Called by Knockout once the Graph template has updated rendering.
+     * Called by Knockout once the template has updated rendering.
      */
     afterAdd: (element) ->
         # console.log "#this.afterAdd()"
