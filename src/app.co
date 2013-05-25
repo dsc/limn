@@ -1,0 +1,110 @@
+limn = require 'limn'
+ko   = require 'knockout'
+page = require 'page'
+
+# base       = require './base'
+# data       = require './data'
+# graph      = require './graph'
+# dashboard  = require './dashboard'
+
+
+/**
+ * @class Sets up root application, automatically attaching to an existing element
+ *  found at `appSelector` and delegating to the appropriate view.
+ */
+class limn.LimnApp
+    VIEWS:
+        'dashboards'    : limn.dashboard.DashboardView
+        'graphs'        : limn.graph.GraphView
+        'datasources'   : limn.data.datasource.DataSourceView
+        '404'           : limn.base.NotFoundView
+        'loading'       : limn.base.LoadingView
+    
+    CREATE_VIEWS:
+        'graphs'        : limn.graph.GraphCreateView
+    
+    
+    /**
+     * Current view.
+     * @type ko.observable<View>
+     */
+    currentView : null
+    
+    
+    
+    /**
+     * @constructor
+     */
+    ->
+        @currentView = ko.observable()
+        
+        # automatically update `limn.view`, `limn.model` when view changes
+        ko.computed ~>
+            obs   = @currentView
+            view  = limn.view  = obs()
+            model = limn.model = view?.model?()
+            [prev, obs.prev] = [obs.prev, view]
+            limn.trigger 'app-view-changed', view, prev, limn.app if view
+        
+        @currentView new limn.base.LoadingView()
+        
+        # XXX: Prevent page.js from intercepting clicks on links to datafiles
+        window.addEventListener do
+            'click'
+            (evt) ->
+                return unless $ evt.target .is '.graph-raw-data-row a,.not-client-side'
+                evt.stopPropagation()
+                false
+            true # capture phase
+        
+        # TODO: this binds everything in the whole app
+        ko.applyBindings this
+        
+        @setupRoutes()
+    
+    
+    setupRoutes: ->
+        page '/:view?/:id?/:action?', (context, next) ~>
+            { view, id, action } = context.params
+            
+            # default to the reportcard dashboard
+            unless view
+                view = 'dashboards'
+                id   = 'reportcard'
+            
+            # if the id is an action, route accordingly
+            if _ <[ create list ]> .contains id
+                action = id
+                id = null
+            
+            switch action
+                case 'create'
+                    views = @CREATE_VIEWS
+                default
+                    views = @VIEWS
+            
+            if ViewType = views[view]
+                @currentView new ViewType id, action
+                @scrollTo 0, 0
+            else
+                next()
+        
+        page '*', ~>
+            @currentView new @VIEWS['404']()
+            @scrollTo 0, 0
+        
+        @route()
+    
+    
+    route: ->
+        page()
+    
+    
+    scrollTo: (x=0, y=0) ->
+        return false if window.scrollX is x and window.scrollY is y
+        window.scrollTo x, y
+        true
+    
+
+limn.app = new LimnApp()
+
