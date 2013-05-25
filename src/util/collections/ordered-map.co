@@ -250,9 +250,9 @@ class exports.OrderedMap
     pop : ->
         return unless @_keys.size()
         key = @_keys.pop()
-        id  = @_getId v
-        delete @_values[id]
-        v
+        id  = @_getId key
+        val = delete @_values[id]
+        [key, val]
     
     
     /**
@@ -262,8 +262,8 @@ class exports.OrderedMap
         return unless @_keys.size()
         key = @_keys.shift()
         id  = @_getId key
-        delete @_values[id]
-        v
+        val = delete @_values[id]
+        [key, val]
     
     
     /**
