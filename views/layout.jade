@@ -43,7 +43,9 @@ html(lang="en", dir="ltr")
             
             .scripts
                 block scripts
-                    - var limn_config = { 'mode':'hosted', 'server':{ 'base':mount } };
+                    - var limn_config = { 'server':{ 'base':mount } };
+                    block config
+                    
                     script
                         var LIMN_VERSION = !{ JSON.stringify(version)  };
                         var LIMN_ENV     = !{ JSON.stringify(NODE_ENV) };
