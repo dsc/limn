@@ -7,6 +7,7 @@ QUnit.module '[dashboard] Dashboard', do
     setup: ->
     teardown: ->
 
+/*
 asyncTest 'fetch', ->
     dashboard = new Dashboard id: 'sample'
     dashboard.fetch().done ->
@@ -21,15 +22,17 @@ asyncTest 'fetch tabs and graphs', ->
         ok dashboard.tabs()[0] instanceof DashboardTab, 'The tabs are typed correctly'
         
         start()
-        /* TODO: rewrite this test since fetchGraphs no longer exists
-        initialFetch = JSON.stringify dashboard
-        dashboard.fetchGraphs().done ->
-            start()
-            graphs = dashboard.tabs()[0].graphs()
-            ok graphs.length > 0, 'the first tab has graphs'
-            ok graphs[0].name().length > 0, 'the first graph has a name'
-            
-            serialized = JSON.stringify dashboard
-            strictEqual initialFetch, serialized, 'round trip serialization works'
+        
+        # TODO: rewrite this test since fetchGraphs no longer exists
+        
+        # initialFetch = JSON.stringify dashboard
+        # dashboard.fetchGraphs().done ->
+        #     start()
+        #     graphs = dashboard.tabs()[0].graphs()
+        #     ok graphs.length > 0, 'the first tab has graphs'
+        #     ok graphs[0].name().length > 0, 'the first graph has a name'
+        #     
+        #     serialized = JSON.stringify dashboard
+        #     strictEqual initialFetch, serialized, 'round trip serialization works'
 
-        */
+*/
