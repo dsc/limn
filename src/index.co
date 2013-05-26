@@ -23,7 +23,7 @@ for k of <[ on addListener off removeListener emit trigger once removeAllListene
 
 # Configure Limn
 limn.{ Config } = require './config'
-limn.config     = new limn.Config root.limn_config, root.limn_render
+limn.config     = new limn.Config root.limn_config
 
 limn.message    = require './message'
 limn.base       = require './base'

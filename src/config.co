@@ -32,16 +32,9 @@ export class Config
     _userConfig: null # Original config given by the user.
     _fullConfig: null # Reference to the materialized config object.
     
-    /**
-     * In non-hosted mode, queue of graphs to render once the DOM is ready.
-     * @type Array<{ graph_id, sel }>
-     */
-    renderQueue: null
-    
     
     
     (conf={}) ->
-        @renderQueue = []
         @_userConfig = {}
         @_fullConfig = _.merge {}, @DEFAULT_CONFIG
         @update conf
@@ -57,20 +50,6 @@ export class Config
         for k in @DEFAULT_CONFIG
             @[k] = @_fullConfig[k]
         this
-    
-    processQueueConfig: (queue) ->
-        queue ?= root.limn_render or []
-        for obj of queue
-            if typeof obj is 'string'
-                obj = obj.split(/ +/)
-            if _.isArray obj
-                obj = { graph_id:obj.pop(), sel:obj.join(' ') }
-            unless obj?.graph_id
-                console.error "Limn: A graph_id must be specified when a render is queued!", obj
-                continue
-            @renderQueue.push obj
-        this
-    
     
     /**
      * Prefix a path with the server mount point.
