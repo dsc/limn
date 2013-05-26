@@ -1,18 +1,18 @@
+/**
+ * @fileOverview App logic for Limn when hosted on a Limn server.
+ */
+
 limn = require 'limn'
 ko   = require 'knockout'
 page = require 'page'
 
-# base       = require './base'
-# data       = require './data'
-# graph      = require './graph'
-# dashboard  = require './dashboard'
 
 
 /**
  * @class Sets up root application, automatically attaching to an existing element
  *  found at `appSelector` and delegating to the appropriate view.
  */
-class limn.LimnApp
+class limn.LimnHostedApp
     VIEWS:
         'dashboards'    : limn.dashboard.DashboardView
         'graphs'        : limn.graph.GraphView
@@ -44,7 +44,7 @@ class limn.LimnApp
             view  = limn.view  = obs()
             model = limn.model = view?.model?()
             [prev, obs.prev] = [obs.prev, view]
-            limn.trigger 'app-view-changed', view, prev, limn.app if view
+            limn.trigger 'app-view-changed', view, prev, this if view
         
         @currentView new limn.base.LoadingView()
         
@@ -58,7 +58,7 @@ class limn.LimnApp
             true # capture phase
         
         # TODO: this binds everything in the whole app
-        ko.applyBindings this
+        ko.applyBindings this, limn.$('#content').0
         
         @setupRoutes()
     
@@ -106,5 +106,5 @@ class limn.LimnApp
         true
     
 
-limn.app = new LimnApp()
+limn.hosted = new LimnHostedApp()
 

@@ -26,8 +26,7 @@ export class Config
         
         render:
             lazy: true              # Renderables wait until visible and scrolled into view before rendering.
-            defaultContainer: null  # Selector picking out an element to append graphs to when no parent element is specified.
-        
+            markup: true            # Automatically search out graphs specified via data-attribures once the page has loaded.
     
     
     _userConfig: null # Original config given by the user.

@@ -282,7 +282,7 @@ class exports.GraphNode extends AttributesBase implements formatters
         # Build our child nodes
         for node of @children()
             nodeParentEl = @determineDOMParentForChildNode(node)
-            continue unless node.build nodeParentEl
+            continue unless nodeParentEl and node.build nodeParentEl
             @trigger 'child-built', node, this
         el
     
