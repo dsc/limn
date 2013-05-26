@@ -1,0 +1,39 @@
+@import 'colors'
+@import 'nib'
+@import 'mixins'
+
+
+.edit .editable
+    cursor pointer
+    &.editing
+        cursor auto
+
+
+.limn-loading
+    spinner 50% 50%
+
+#limn-messages
+    position fixed
+    top 0
+    left 10%
+    width 78%
+    z-index 1000
+    padding 8px
+    
+    .alert
+        margin 8px
+
+
+
+.limn-modal.modal
+    margin 0
+    top 5%
+    left 5%
+    right 5%
+    bottom 5%
+    width auto
+    height auto
+    .modal-body
+        max-height none
+
+

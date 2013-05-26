@@ -3,9 +3,6 @@
 @import 'mixins'
 @import 'text'
 
-.clearer
-    clearfix()
-
 .icon-wmf
     display inline-block
     width 17px
@@ -67,27 +64,6 @@ header, footer, #content
         box-shadow -2px 2px 5px 1px #bbb
         padding 6px
         background-color white
-
-#messages
-    padding 8px
-    font-size 16px
-    position fixed
-    width 78%
-    height 42px
-    z-index 12
-    div
-        border-radius 4px
-        box-shadow -2px 2px 5px 1px #bbb
-        padding 4px
-        overflow hidden
-        span.badge
-            margin-right 8px
-        span.message
-            color #333
-    .info
-        background-color #fcf8e3
-    .error
-        background-color #f2dede
 
 #content
     z-index 10
@@ -236,19 +212,6 @@ footer
     
     .wmf-logo
         margin 65px auto
-    
-
-// visualizing modal dialog
-.modal
-    margin 0
-    top 5%
-    left 5%
-    right 5%
-    bottom 5%
-    width auto
-    height auto
-    .modal-body
-        max-height none
 
 
 .rilke

@@ -1,0 +1,14 @@
+div.alert(data-bind="css: type() ? 'alert-' + type() : null")
+    button.close(type="button", data-dismiss="alert") &times;
+    
+    // ko if: icon
+    i(data-bind="css: icon")
+    |   
+    // /ko
+    
+    // ko if: title
+    strong(data-bind="text: title")
+    |   
+    // /ko
+    
+    span.message(data-bind='text: msg')

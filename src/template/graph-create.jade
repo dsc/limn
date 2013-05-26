@@ -1,5 +1,6 @@
-fieldset.controlGroup
+fieldset.graph.graph-create.controlGroup
     legend Create a Graph
+    
     form.form-horizontal(data-bind="submit: newGraph, with: blankGraph")
         .control-group
             label.control-label(for="slug") Unique Id
@@ -38,8 +39,6 @@ fieldset.controlGroup
                 div
                     a.not-client-side(data-bind="attr: {href: link}, text: name", target="_blank")
                     button.btn.btn-primary.btn-mini(data-bind="click: $parents[1].deleteGraph") delete
-
-    
     
     .pick-datasources
         h3 Pick Datasources
@@ -63,7 +62,7 @@ fieldset.controlGroup
                         span(data-bind="text: name")
 
 
-.modal.hide.previewDialog(data-backdrop="false", data-bind="if: previewDialog")
+.limn-modal.modal.hide.previewDialog(data-backdrop="false", data-bind="if: previewDialog")
     .modal-header
         button.close(data-dismiss="modal", data-bind="click: cleanUpPreview", aria-hidden="true") &times;
     .modal-body
