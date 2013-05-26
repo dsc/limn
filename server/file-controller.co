@@ -17,6 +17,8 @@ yaml       = require 'js-yaml'
 Controller = require './controller'
 
 
+
+
 /**
  * @class Resource controller backed by flat json or yaml files.
  * 
@@ -69,8 +71,8 @@ class FileBackedController extends Controller
     autoload: (id, cb) ->
         Seq()
             .seq readJSONFilesAsync, @toFile(id), {+yaml, -appendExt}, Seq
-            .seq   (data) -> cb null, (_.values(data)[0] or {})
-            .catch (err)  -> cb null, {}
+            .seq   (data) ~> cb null, (_.values(data)[0] or @MISSING_RESOURCE)
+            .catch (err)  ~> cb null, @MISSING_RESOURCE
     
     
     

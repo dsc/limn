@@ -11,6 +11,13 @@ hasOwn = Object::hasOwnProperty
  */
 class Controller extends Resource
     /**
+     * Sentinel representing a missing resource, as exceptions cannot be handled in autoload.
+     * 
+     * @constant
+     */
+    MISSING_RESOURCE : {}
+    
+    /**
      * Singular, lowercase resource-noun.
      * @optional
      * @type String
@@ -125,6 +132,7 @@ class Controller extends Resource
     show: (req, res, next) ->
         return next() unless req.format is 'json'
         if obj = req[@id]
+            return res.send 404 if obj is @MISSING_RESOURCE
             res.contentType 'application/json'
             return res.send JSON.stringify(obj, null, 4) if 'pretty' in req.query
             return res.send obj

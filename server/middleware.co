@@ -50,7 +50,7 @@ REV = process.env.LIMN_REV or 'HEAD'
 helpers         = {}
 users           = {}
 passport        = require 'passport'
-GoogleStrategy  = require 'passport-google' .Strategy;
+GoogleStrategy  = require 'passport-google' .Strategy
 
 passport.serializeUser (user, done) -> done(null, user.id)
 passport.deserializeUser (id, done) -> done(null, users[id])
@@ -266,7 +266,7 @@ application = limn.application =
         
         /**
          * Set CORS header to allow access to our datafiles.
-         * TODO: path should be based on `opts.dataDir`?
+         * XXX: path should be based on `opts.dataDir`?
          */
         @use '/data', (req, res, next) ->
             if origin = req.header 'Origin'
@@ -297,11 +297,11 @@ application = limn.application =
         
         
         
-        # data controllers
+        # Resource Controllers
         @controller require './controllers/graph'
         @controller require './controllers/dashboard'
         
-        # Has to preceed controllers/datasource to override
+        # XXX: This route must preceed @use `controllers/datasource` so it overrides
         # TODO: fix Controller#mapping!
         YAML_EXT_PAT = /\.ya?ml$/i
         @get '/datasources/all', (req, res, next) ->
@@ -341,25 +341,30 @@ application = limn.application =
         
         @controller require './controllers/datasource'
         
-        # Proxy endpoint: /x
+        
+        /**
+         * Proxy endpoint: /x
+         */
         if opts.proxy.enabled
             proxy = require('./proxy')(opts.proxy)
             @get '/x',   proxy
             @get '/x/*', proxy
         
         
-        # Tests
-        @get '/test', (req, res) ->
-            res.render 'test'
+        # Auth Endpoints
         
-        # Redirect the user to Google for authentication.  When complete, Google
-        # will redirect the user back to the application at
-        #     /auth/google/callback
+        /**
+         * Redirect the user to Google for authentication.  When complete, Google
+         * will redirect the user back to the application at:
+         *     /auth/google/callback
+         */
         @get '/auth/google', passport.authenticate('google')
-
-        # Google will redirect the user to this URL after authentication.  Finish
-        # the process by verifying the assertion.  If valid, the user will be
-        # logged in.  Otherwise, authentication has failed.
+        
+        /**
+         * Google will redirect the user to this URL after authentication.  Finish
+         * the process by verifying the assertion.  If valid, the user will be
+         * logged in.  Otherwise, authentication has failed.
+         */
         @get '/auth/google/callback', passport.authenticate('google', {
             successRedirect: '/',
             failureRedirect: '/auth/google'
@@ -372,10 +377,34 @@ application = limn.application =
         @get '/login-view', (req, res) ->
             res.render 'login'
         
-        # All other non-controller, non-static endpoints mapped to default view
-        # for client-side routing
-        @get '/*', (req, res) ->
-            res.render 'index'
+        
+        # View Endpoints
+        
+        /**
+         * Render view templates in /views.
+         */
+        @get '/:type/:action?/?', (req, res, next) ->
+            {type, action} = req.params
+            
+            view = _.compact [type, action] .join '/'
+            return next() unless view
+            
+            if exists "#VIEWS/#view.jade"
+                res.render "#view"
+            else if exists "#VIEWS/#view/index.jade"
+                res.render "#view/index"
+            else
+                next()
+        
+        /**
+         * All other non-controller, non-static endpoints mapped to default view 
+         * for client-side routing.
+         */
+        @get '/*', (req, res, next) ->
+            if /^\/(js|css|img|vendor|data|test)\//.test req.path
+                next()
+            else
+                res.render 'index'
         
         this
     
