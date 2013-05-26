@@ -1,0 +1,62 @@
+ko = require 'knockout'
+
+{ _, op,
+} = require '../util'
+
+{ View,
+} = require '../base/view'
+{ GraphView, GraphChartOnlyView,
+} = require './graph-view'
+# { DashboardView,
+# } = require '../dashboard/dashboard-view'
+
+limn = require 'limn'
+
+
+
+/**
+ * @class
+ * @extends View
+ */
+export class MarkupAPIView extends View
+    OPTION_DEFAULTS:
+        template : null
+    
+    
+    id : null
+    el : null
+    view: null
+    options: null
+    
+    
+    (@id, el, opts={}) ->
+        super()
+        @el = _.toElement el
+        @options = opts = _.merge {}, @OPTION_DEFAULTS, opts
+        @view = new GraphView id # TODO: limn.config.data.lazy
+        @view.template = that if opts.template
+        limn.$ el .data 'view', this
+        
+        # TODO: limn.config.render.lazy
+        @render()
+    
+    render: @computed ->
+        return unless limn.domReady()
+        @view.renderView @el
+    
+    @fromDataMarkup = (el) ->
+        $el     = limn.$ _.toElement el
+        data    = $el.data()
+        id      = data['limnGraph'] or null
+        options = data['options'] # TODO: replace with data-OPTION_NAME attribures
+        new MarkupAPIView id, $el.0, options
+    
+    @autodetect = ->
+        limn.$ '[data-limn-graph]' .toArray()
+            .map (el) -> MarkupAPIView.fromDataMarkup el
+
+
+ko.computed ->
+    return unless limn.domReady()
+    MarkupAPIView.autodetect()
+

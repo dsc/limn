@@ -1,16 +1,15 @@
 include mixins/helpers
-extends layout
+extends index
 
-block styles
-    //- mixin css('reset.min.css')
+append styles
     mixin css('/vendor/qunit/themes/qunit.css')
     mixin css('/vendor/qunit/theme-picker.css')
 
 block content
     .inner(style='padding:1em')
         #qunit
-
-block footer
+    
+    .test-graph(data-limn-graph='unique_visitors', data-options='{ "template":"graph-chart-only" }')
 
 append defs
     .tests

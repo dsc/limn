@@ -146,11 +146,8 @@ export class GraphView extends View
      * Called by Knockout once the Graph template has finished rendering.
      */
     afterRender: (element) ->
-        # console.log "#this.afterRender()"
-        @el element
-        
-        if @action() is 'edit'
-            new EditView this
+        super ...
+        new EditView this if @action() is 'edit' # TODO: refactor @action crap into subclass
     
     
     metricDefs: @computed ->
