@@ -1,29 +1,57 @@
+ko   = require 'knockout'
+limn = require 'limn'
+
+{ Model, View,
+} = require './base'
+
+
+
+export class Message extends Model
+    -> super ...
+    defaults: ->
+        type  : null            # Alert type := null | error | success | info
+        icon  : null            # Bootstrap icon class, including 'icon-' prefix as well as 'icon-white' if desired.
+        title : null            # Message title
+        msg   : ''              # Message body text
+
+
+# Global message state
+export messages = ko.observableArray()
+
 
 /**
- * @namespace Basic info and error messages that can be used anywhere via the limn object
+ * Displays a message.
  */
-message = module.exports = do
-    
-    showMessages : -> $('#messages').show()
-    hideMessages : -> $('#messages').hide()
-    hideError    : -> $('#messages .error').hide()
-    hideInfo     : -> $('#messages .info').hide()
-    
-    error : (message) ->
-        message.showMessages()
-        message.hideInfo()
-        $('#messages .error .message').text message
-        $('#messages .error').show 'slow'
-    
-    info : (message) ->
-        message.showMessages()
-        message.hideError()
-        $('#messages .info .message').text message
-        $('#messages .info').show 'slow'
+export message = (msg, title, icon, type) ->
+    return unless msg or title
+    messages.push m = new Message { msg, title, type, icon }
+    m
+
+/**
+ * Displays an info message.
+ */
+export info    = (msg, title, icon) -> message msg, title, icon, 'info'
+
+/**
+ * Displays a success message.
+ */
+export success = (msg, title, icon) -> message msg, title, icon, 'success'
+
+/**
+ * Displays an error message.
+ */
+export error   = (msg, title, icon) -> message msg, title, icon, 'error'
 
 
-# TODO: create #messages if not exists
+## Setup the container
+container = limn.$ '<section id="limn-messages" data-bind="template: { name:\'message\', foreach:messages, afterAdd:fadeIn }" />'
+    .appendTo limn.$ 'body'
+    .on 'closed', '.alert', ->
+        messages.remove that if ko.dataFor this
 
-$('#messages button.close').on 'click', -> $('#messages').hide()
-message.hideMessages()
+fadeIn = (el) ->
+    limn.$ el .show 'slow' if el.nodeType is 1
+
+ko.applyBindings { messages, fadeIn }, container.0
+
 

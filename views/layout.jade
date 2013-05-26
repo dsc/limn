@@ -25,17 +25,6 @@ html(lang="en", dir="ltr")
                 .pull-right
                     include login
             
-            block messages
-                section#messages.collapse
-                    .error.hide
-                        span.badge.badge-important !
-                        span.message
-                        button.close.pull-right &times;
-                    .info.hide
-                        span.badge.badge-success OK
-                        span.message
-                        button.close.pull-right &times;
-            
             section#content: .inner
                 block content
             
@@ -50,7 +39,7 @@ html(lang="en", dir="ltr")
                         - var template = getTemplate(f)
                         - var id = path.basename(template.filename.replace(TEMPLATE+'/', '').replace(/\.[^\.]+$/, ''))
                         script(id=id, data-template-name=template.name, type="text/html")
-                            !{ '\n'+template.text }
+                            !{ _.rstrip(template.text) }
             
             .scripts
                 block scripts
@@ -79,7 +68,7 @@ html(lang="en", dir="ltr")
                             var _    = require('underscore');
                     block main-scripts
                         script
-                            require('limn/app');
+                            require('limn/hosted-app');
             
             block addenda
                 .rilke: blockquote
