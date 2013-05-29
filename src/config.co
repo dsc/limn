@@ -44,6 +44,7 @@ export class Config
         conf.render.lazyRender = true if conf.render.lazyLoad
         conf
     
+    
     update: (conf={}) ->
         @_userConfig = _.merge {}, @_userConfig, conf
         @_fullConfig = @canonicalize _.merge {}, @_fullConfig, @_userConfig
@@ -51,13 +52,14 @@ export class Config
             @[k] = @_fullConfig[k]
         this
     
+    
     /**
      * Prefix a path with the server mount point.
      */
     mount: (path='') ->
         mnt   = @server.base or '/'
-        path .= slice(1)     if '/' == path[0]
         mnt  .= slice(0, -1) if '/' == mnt[mnt.length-1]
+        path .= slice(1)     if '/' == path[0]
         "#mnt/#path"
     
     

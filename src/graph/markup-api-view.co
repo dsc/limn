@@ -47,8 +47,9 @@ export class MarkupAPIView extends View
     @fromDataMarkup = (el) ->
         $el     = limn.$ _.toElement el
         data    = $el.data()
-        id      = data['limnGraph'] or null
-        options = data['options'] # TODO: replace with data-OPTION_NAME attribures
+        id      = data.limnGraph or null
+        options = data.options or {} # TODO: replace with data-OPTION_NAME attribures
+        options.template or= that if data.template
         new MarkupAPIView id, $el.0, options
     
     @autodetect = ->
