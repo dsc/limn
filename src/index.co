@@ -29,6 +29,7 @@ limn.config     = new limn.Config root.limn_config
 
 limn.message    = require './message'
 limn.base       = require './base'
+limn.template   = require './template'
 limn.data       = require './data'
 limn.graph      = require './graph'
 limn.dashboard  = require './dashboard'
