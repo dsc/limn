@@ -7,11 +7,20 @@ html(lang="en", dir="ltr")
             meta(http-equiv="content-type", content="text/html; charset=utf-8")
             meta(name="viewport", content="width=device-width, initial-scale=1.0")
             
-            block vendor-styles
-                mixin css('/vendor/bootstrap/css/bootstrap.css')
-                mixin css('hicons.css')
+            //-
+                Add cssClasses='livecss' to any css() call enable live reloading
             block styles
-                mixin css('layout.css')
+                block vendor-styles
+                    mixin css('/vendor/bootstrap/css/bootstrap.css')
+                    mixin css('hicons.css')
+                block page-styles
+                    mixin css('layout.css')
+                block lib-styles
+                    mixin css('util.css')
+                    mixin css('graph-display.css')
+                    mixin css('graph-nodes.css')
+                    mixin css('graph-create.css')
+                    mixin css('dashboard.css')
             
             link(type="image/ico", rel="icon", href="/favicon.ico")
             link(type="image/x-icon", rel="shortcut icon", href="/favicon.ico")
@@ -35,11 +44,10 @@ html(lang="en", dir="ltr")
         block defs
             .templates
                 block jade-templates
-                    for f in glob.sync(TEMPLATE+'/**/*.@(jade|html)')
-                        - var template = getTemplate(f)
-                        - var id = path.basename(template.filename.replace(TEMPLATE+'/', '').replace(/\.[^\.]+$/, ''))
-                        script(id=id, data-template-name=template.name, type="text/html")
-                            !{ _.rstrip(template.text) }
+                    for f in findTemplates()
+                        - var t = getTemplate(f)
+                        script(id=t.id, data-template-name=t.id, data-template-path=t.path, type="text/html")
+                            !{ t.text }
             
             .scripts
                 block scripts

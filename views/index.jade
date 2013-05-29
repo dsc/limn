@@ -1,15 +1,4 @@
 extends layout
 
-
-append styles
-    //-
-        Add cssClasses='livecss' to enable live reloading
-    mixin css('util.css')
-    mixin css('graph-display.css')
-    mixin css('graph-nodes.css')
-    mixin css('graph-create.css')
-    mixin css('dashboard.css')
-
-
 block content
     section.page(data-bind="subview: currentView")
