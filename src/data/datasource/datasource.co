@@ -127,6 +127,7 @@ export class DataSource extends StoredModel
         else
             cacheBuster = @generateRandom()
             url = "#url?#cacheBuster"
+        url = require('limn').config.mount url if url[0] is '/'
     
     
     /**
