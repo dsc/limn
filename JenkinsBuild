@@ -1,3 +1,0 @@
-coke install
-export LIMN_DATA="/var/lib/jenkins/jobs/analytics-reportcard-data/workspace"
-coke link_reportcard_data
