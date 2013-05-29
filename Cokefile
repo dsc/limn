@@ -52,35 +52,32 @@ task \link_data 'Link to data passed in as an argument' (options) ->
         return
     
     datadir = "#vardir/data"
-    sh "mkdir -p #datadir"
-    sh "mkdir -p #datadir/dashboards"
-    sh "mkdir -p #datadir/datafiles"
-    sh "mkdir -p #datadir/datasources"
-    sh "mkdir -p #datadir/graphs"
-    sh "mkdir -p #datadir/geo"
+    resource_types = <[ dashboards datafiles datasources graphs geo ]>
+    
+    # ensure data resource directories
+    data_resources = resource_types
+        .map -> "#datadir/#it"
+        .join ' '
+    sh "mkdir -p #data_resources"
     
     # remove links if they exist
-    sh "rm -f #datadir/dashboards/#toLink"
-    sh "rm -f #datadir/datafiles/#toLink"
-    sh "rm -f #datadir/datasources/#toLink"
-    sh "rm -f #datadir/graphs/#toLink"
-    sh "rm -f #datadir/geo/#toLink"
+    data_links = resource_types
+        .map -> "#datadir/#it/#toLink"
+        .join ' '
+    sh "rm -f #data_links"
     
     # make links
-    sh "ln -sn #data/dashboards #datadir/dashboards/#toLink"
-    sh "ln -sn #data/datafiles #datadir/datafiles/#toLink"
-    sh "ln -sn #data/datasources #datadir/datasources/#toLink"
-    sh "ln -sn #data/graphs #datadir/graphs/#toLink"
-    sh "ln -sn #data/geo #datadir/geo/#toLink"
+    for resource of resource_types
+        sh "ln -sn #data/#resource #datadir/#resource/#toLink"
     
-    say 'ok\n'
+    say 'ok.\n'
+
 
 wrapInRequireDefine = (module, infile) ->
     "require.define('/node_modules/#module', function(require, module, exports, __dirname, __filename, undefined){\n\n" + read(infile) + "\n\n});\n"
 
 task \build 'Build coco sources' ->
-    invoke \update_version
-    coco <[ -bjc package.co ]>
+    package                 = require 'package'
     
     browserify              = require 'browserify'
     Coco                    = require 'coco'
@@ -91,14 +88,21 @@ task \build 'Build coco sources' ->
     
     matchExt = /((?:\.min)?)\.mod((?:\.min)?)\.js$/i
     fullExt  = /(\.(min|mod|amd|jade))*\.js$/i
-    commonjs_sources = sources 'development'
-        .filter -> it.indexOf('browserify') is -1 and it.indexOf('mod.js') is not -1
-        .map -> "static#it"
     
-    
-    console.log 'Building source...'
-    
-    Seq(commonjs_sources)
+    Seq()
+        .seq ->
+            console.log 'Regenerating package.json, version.js...'
+            write "package.json", Coco.compile read('package.co'), {+bare, +json, filename:'package.co'}
+            write "var/js/limn/version.js", "exports.VERSION = '#{package.version}';\n"
+            say 'ok.\n'
+            @ok()
+        
+        .seq ->
+            console.log 'Building source...'
+            commonjs_sources = sources 'development'
+                .filter -> it.indexOf('browserify') is -1 and it.indexOf('mod.js') is not -1
+                .map -> "static#it"
+            @ok commonjs_sources
         .seqEach (modfile) ->
             module = modfile.replace /^static\/vendor\//, '' .replace /\.mod\.js$/, ''
             infile = "static/vendor/#module.js"
