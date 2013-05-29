@@ -265,10 +265,11 @@ application = limn.application =
                 log_level : LOG_LEVEL
         
         /**
-         * Set CORS header to allow access to our datafiles.
-         * XXX: path should be based on `opts.dataDir`?
+         * Set CORS header to allow remote access.
          */
-        @use '/data', (req, res, next) ->
+        @use (req, res, next) ->
+            if not /^\/(graphs|dashboards|datasources|data|x)\//.test req.path
+                return next()
             if origin = req.header 'Origin'
                 res.header 'Access-Control-Allow-Origin', origin
             next()
@@ -369,7 +370,7 @@ application = limn.application =
             successRedirect: '/',
             failureRedirect: '/auth/google'
         })
-
+        
         @get '/logout', (req, res) ->
             req.logout()
             res.redirect '/'
