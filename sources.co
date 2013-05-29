@@ -85,21 +85,30 @@ export MODULES =
                     page
                 ]>
         
-        ### Might need these sometime soon?
-        # *   suffix: '.min.js'
-        #     paths:
-        #         *   vendor: <[
-        #                 jquery.spin
-        #                 jquery.transit
-        #                 jquery-ui-1.9.1.custom
-        #                 bootstrap-colorpicker
-        #                 bootstrap-datepicker
-        #                 jade.runtime
-        #             ]>
-        #         ...
-        #         
-        #         ### For Debugging
-        #         *   vendor: <[ livecss ]>
+
+export CSS_BUNDLES =
+    display:
+        paths:
+            css: <[
+                util
+                graph-display
+                graph-nodes
+                graph-create
+                dashboard
+            ]>
+    site:
+        paths:
+            vendor: <[
+                bootstrap/css/bootstrap
+            ]>
+            css: <[
+                hicons
+                layout
+            ]>
+    
+    hosted:
+        include: <[ site display ]>
+    
 
 /**
  * Cache of source paths
@@ -163,17 +172,26 @@ export findSources = (srcDirs=<[ src ]>, opts={}) ->
 
 
 /**
+ * Search for templates.
+ */
+export findTemplates = ->
+    return glob.sync TEMPLATE+'/**/*.@(jade|html)'
+
+
+/**
  * Read and reify a template file.
  */
 export getTemplate = (filename) ->
     return that if TEMPLATE_CACHE.get filename
     
-    name = basename filename .replace /\.jade$/i, ''
+    path = filename.replace TEMPLATE+'/', '' .replace /\.[^\.\/]+$/, ''
+    id   = basename path
+    
     text = fs.readFileSync filename, 'utf8'
     if /\.jade$/i.test filename
-        text = jade.compile(text, { filename, +pretty })(^exports)
+        text = _.rstrip jade.compile(text, { filename, +pretty })(^exports)
     
-    tpl = { name, filename, text }
+    tpl = { id, path, filename, text }
     TEMPLATE_CACHE.set filename, tpl
     tpl
 

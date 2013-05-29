@@ -34,9 +34,6 @@ var
 log
 tmp
 
-src/version.js
-www/presets/*.json
-
 static/vendor/browserify.js
 git2deblogs.pl
 debian/changelog
@@ -44,4 +41,7 @@ debian/limn*
 !debian/limn.conf
 debian/files
 
+version.js
+version.co
+gitrev.js
 config.json

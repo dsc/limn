@@ -9,11 +9,15 @@ APP_BUNDLE_MIN_PATH    = APP_BUNDLE_PATH.replace /\.js$/, '.min.js'
 BROWSERIFY_PATH        = 'static/vendor/browserify.js'
 VENDOR_BUNDLE_PATH     = 'var/vendor/vendor-bundle.js'
 VENDOR_BUNDLE_MIN_PATH = VENDOR_BUNDLE_PATH.replace /\.js$/, '.min.js'
+CSS_BUNDLE_PATH        = 'var/css/limn.css'
+CSS_BUNDLE_MIN_PATH    = CSS_BUNDLE_PATH.replace /\.css$/, '.min.css'
 DIST_PATH              = 'dist/limn.js'
 DIST_MIN_PATH          = DIST_PATH.replace /\.js$/, '.min.js'
+DIST_CSS_PATH          = 'dist/limn.css'
+DIST_CSS_MIN_PATH      = DIST_CSS_PATH.replace /\.css$/, '.min.css'
 
 
-{ sources, findSources, MODULES, LIMN_VARDIR, LIMN_DATA
+{ sources, findSources, getTemplate, MODULES, CSS_BUNDLES, LIMN_VARDIR, LIMN_DATA,
 } = require './sources'
 
 
@@ -25,9 +29,12 @@ task \setup 'Ensure project is set up for development.' ->
     throw err if err
     invoke \update_version
 
-task \update_version ->
-    err, version <- writeVersionFile 'src/version.js'
+task \update_gitrev ->
+    err, version <- writeVersionFile 'gitrev.js'
     throw err if err
+
+task \update_version ->
+    coco <[ -bjc package.co ]>
 
 task \server 'Start dev server' ->
     run './server/server.co'
@@ -73,12 +80,10 @@ task \link_data 'Link to data passed in as an argument' (options) ->
     say 'ok.\n'
 
 
-wrapInRequireDefine = (module, infile) ->
-    "require.define('/node_modules/#module', function(require, module, exports, __dirname, __filename, undefined){\n\n" + read(infile) + "\n\n});\n"
+wrapInRequireDefine = (module, text) ->
+    "require.define('/node_modules/#module', function(require, module, exports, __dirname, __filename, undefined){\n\n#text\n\n});\n"
 
 task \build 'Build coco sources' ->
-    package                 = require 'package'
-    
     browserify              = require 'browserify'
     Coco                    = require 'coco'
     Jade                    = require 'jade'
@@ -91,30 +96,34 @@ task \build 'Build coco sources' ->
     
     Seq()
         .seq ->
-            console.log 'Regenerating package.json, version.js...'
-            write "package.json", Coco.compile read('package.co'), {+bare, +json, filename:'package.co'}
-            write "var/js/limn/version.js", "exports.VERSION = '#{package.version}';\n"
+            console.log 'Regenerating package.json, version.js'
+            coco <[ -bjc package.co ]>, null, ~> @ok()
+        .seq ->
+            pkg = require './package.json'
+            write "src/version.co", "export VERSION = '#{pkg.version}'\n"
             say 'ok.\n'
             @ok()
         
         .seq ->
-            console.log 'Building source...'
+            console.log 'Building sources...'
             commonjs_sources = sources 'development'
                 .filter -> it.indexOf('browserify') is -1 and it.indexOf('mod.js') is not -1
                 .map -> "static#it"
             @ok commonjs_sources
+        .flatten()
         .seqEach (modfile) ->
             module = modfile.replace /^static\/vendor\//, '' .replace /\.mod\.js$/, ''
             infile = "static/vendor/#module.js"
             outfile = "var/vendor/#module.mod.js"
             mkdirp dirname outfile
             if exists modfile
-                console.log "  Writing CommonJS file:\t #modfile \t-->\t #outfile"
+                console.log "  Copying CommonJS file:\t #modfile \t-->\t #outfile"
                 write outfile, read modfile
             else
                 console.log "  Writing CommonJS file:\t #infile \t-->\t #outfile"
-                write outfile, wrapInRequireDefine "#module.js", infile
+                write outfile, wrapInRequireDefine "#module.js", read(infile)
             @ok()
+        
         .seq ->
             console.log '  Bundling Browserify bundle'
             bundle = browserify exports:<[ require process ]>
@@ -128,11 +137,11 @@ task \build 'Build coco sources' ->
             return @ok() unless exists infile
             outfile = infile.replace /^src/, 'var/js/limn' .replace /\.co$/, '.js'
             modfile = outfile.replace /\.js$/, '.mod.js'
-            module = outfile.replace /^var\/js\/limn/, 'limn'
-            console.log "  Compiling Coco to JS and .MOD.JS:\t #infile \t-->\t #outfile"
+            module  = outfile.replace /^var\/js\/limn/, 'limn'
+            console.log "  Compiling Coco to JS Module:\t #infile \t-->\t #outfile"
             mkdirp dirname outfile
-            write outfile, Coco.compile read(infile), {+bare, filename:infile}
-            write modfile, wrapInRequireDefine module, outfile
+            write outfile, modtext = Coco.compile read(infile), {+bare, filename:infile}
+            write modfile, wrapInRequireDefine module, modtext
             @ok()
         
         .set glob "css/*.styl", {+sync}
@@ -147,6 +156,29 @@ task \build 'Build coco sources' ->
                 write outfile, css unless err
                 this err
         
+        .set glob "src/template/**/*.@(jade|html)", {+sync}
+        .seqMap (infile) ->
+            console.log "  Compiling Template:\t #infile"
+            @ok getTemplate infile
+        .unflatten()
+        .seq (templates) ->
+            tpls = templates
+                .map (tpl) ->
+                    delete tpl.filename
+                    "\t#{ JSON.stringify(tpl) }"
+                .join ',\n'
+            modtext = "var templates = exports = module.exports = [\n#tpls\n];"
+            
+            outfile = "var/js/limn/template/templates.js"
+            modfile = outfile.replace /\.js$/, '.mod.js'
+            module  = outfile.replace /^var\/js\/limn/, 'limn'
+            
+            console.log "  Writing Templates to #modfile"
+            mkdirp dirname outfile
+            write outfile, modtext
+            write modfile, wrapInRequireDefine module, modtext
+            @ok()
+        
         .catch (err) ->
             console.error "Error! #err", err
             err = new Error err if typeof err is 'string'
@@ -160,6 +192,7 @@ task \build 'Build coco sources' ->
 task \bundle 'Build application and vendor bundles' ->
     invoke \bundle_sources
     invoke \bundle_vendor
+    invoke \bundle_css
 
 task \bundle_sources 'Build application bundle' ->
     app_sources = findSources null, {pre:'var/js/limn/'}
@@ -171,7 +204,6 @@ task \bundle_sources 'Build application bundle' ->
     say 'ok.\n'
 
 task \bundle_vendor 'Build vendor bundle' ->
-    
     # FIXME: including vendor dependencies is quite a mess.  Clean this up
     vendor_sources_no_browserify = sources 'development'
         .filter -> it.indexOf('browserify') is -1
@@ -188,6 +220,15 @@ task \bundle_vendor 'Build vendor bundle' ->
     write VENDOR_BUNDLE_MIN_PATH, minify read VENDOR_BUNDLE_PATH
     say 'ok.\n'
 
+task \bundle_css 'Build CSS bundles' ->
+    css_sources = <[ util graph-display graph-nodes graph-create dashboard ]>
+        .map -> "var/css/#it.css"
+    mkdirp dirname CSS_BUNDLE_PATH
+    bundle_css CSS_BUNDLE_PATH, css_sources, {-minify}
+    print 'Minifying into', CSS_BUNDLE_MIN_PATH.magenta.bold, '... '
+    write CSS_BUNDLE_MIN_PATH, cssmin read CSS_BUNDLE_PATH
+    say 'ok.\n'
+
 task \bundle_combine 'Combine bundles into dist file' ->
     print 'Writing dist file', DIST_PATH.magenta.bold , '... '
     mkdirp dirname DIST_PATH
@@ -197,6 +238,10 @@ task \bundle_combine 'Combine bundles into dist file' ->
     print 'Writing minified dist file', DIST_MIN_PATH.magenta.bold , '... '
     mkdirp dirname DIST_MIN_PATH
     write DIST_MIN_PATH, "#{read VENDOR_BUNDLE_MIN_PATH}\n#{read APP_BUNDLE_MIN_PATH}\n"
+    say 'ok.\n'
+    
+    print 'Copying CSS dist files... '
+    sh 'cp var/css/limn.* dist/'
     say 'ok.\n'
 
 
