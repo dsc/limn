@@ -17,8 +17,8 @@ export insertTemplates = ->
     
     container = $ '<div id="limn-templates" style="display: none;" />' .appendTo $ 'body'
     
-    for {id, name, text} of templates
-        container.append $ "<script class='limn-template' id='#id' data-template-name='#name' type='text/html'>\n#text\n</script>"
+    for {id, text} of templates
+        container.append $ "<script class='limn-template' id='#id' data-template-name='#id' type='text/html'>\n#text\n</script>"
     
     container
 

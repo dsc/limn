@@ -42,7 +42,7 @@ html(lang="en", dir="ltr")
                     include footer
         
         block defs
-            .templates
+            #limn-templates.templates
                 block jade-templates
                     for f in findTemplates()
                         - var t = getTemplate(f)
@@ -55,7 +55,6 @@ html(lang="en", dir="ltr")
                     block config
                     
                     script
-                        var LIMN_VERSION = !{ JSON.stringify(version)  };
                         var LIMN_ENV     = !{ JSON.stringify(NODE_ENV) };
                         var limn_config = !{ JSON.stringify(limn_config) };
                     

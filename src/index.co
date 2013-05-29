@@ -1,6 +1,8 @@
 limn = exports
 limn.require = require
 
+limn import require './version'
+
 limn.{ _, op, emitters, guidFor, compareIds,
 } =  { _, op, emitters, guidFor, compareIds, root,
 } = limn.util = require './util'

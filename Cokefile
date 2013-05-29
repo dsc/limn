@@ -100,7 +100,7 @@ task \build 'Build coco sources' ->
             coco <[ -bjc package.co ]>, null, ~> @ok()
         .seq ->
             pkg = require './package.json'
-            write "src/version.co", "export VERSION = '#{pkg.version}'\n"
+            write "src/version.co", "exports.version = '#{pkg.version}'\n"
             say 'ok.\n'
             @ok()
         
